@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "afeat"
+version = "0.1.0"
+description = "Universal Personal CLI Utility & Media/Document Converter"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "yt-dlp",
+    "pillow",
+    "pillow-heif",
+    "pypdf",
+    "markdown",
+]
+
+[project.scripts]
+afeat = "main:main"
+
+[tool.setuptools]
+packages = ["features"]
+py-modules = ["main"]
