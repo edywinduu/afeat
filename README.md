@@ -22,89 +22,89 @@
 
 ## Panduan Sintaks Perintah (Universal Commands)
 
-### 1. Konversi Format File (`afeat convert`)
+### 1. Konversi Format File (`afeat cvt`)
 
 #### A. Konversi Seluruh File Berekstensi Sama di Folder Aktif:
 ```bash
 # Ubah semua file PNG menjadi WebP
-afeat convert png webp
+afeat cvt png webp
 
 # Ubah semua foto iPhone (HEIC) menjadi JPG
-afeat convert heic jpg
+afeat cvt heic jpg
 
 # Ubah semua rekaman audio WAV menjadi MP3
-afeat convert wav mp3
+afeat cvt wav mp3
 
 # Ubah semua video MP4 menjadi audio MP3
-afeat convert mp4 mp3
+afeat cvt mp4 mp3
 
 # Ubah video MP4 menjadi animasi GIF berkualitas tinggi
-afeat convert mp4 gif
+afeat cvt mp4 gif
 
 # Ubah dokumen Markdown menjadi HTML
-afeat convert md html
+afeat cvt md html
 ```
 
 #### B. Konversi 1 File Spesifik:
 Cukup sebutkan nama filenya diikuti format tujuan:
 ```bash
 # Konversi hanya file 'banner.png' menjadi 'banner.webp'
-afeat convert banner.png webp
+afeat cvt banner.png webp
 
 # Konversi hanya file 'recording.wav' menjadi 'recording.mp3'
-afeat convert recording.wav mp3
+afeat cvt recording.wav mp3
 
 # Konversi hanya file 'clip.mp4' menjadi 'clip.gif'
-afeat convert clip.mp4 gif
+afeat cvt clip.mp4 gif
 ```
-*Catatan: Anda juga bisa menuliskan kata "to" jika terbiasa (misal: `afeat convert banner.png to webp`).*
+*Catatan: Anda juga bisa menuliskan kata "to" jika terbiasa (misal: `afeat cvt banner.png to webp`).*
 
 #### C. Konversi Otomatis Berdasarkan Format Target Saja:
 Jika Anda hanya memasukkan format target, `afeat` akan memindai semua file di folder aktif yang kompatibel dan mengubahnya:
 ```bash
 # Mengonversi semua gambar (.jpg, .png, .heic, dll) di folder ini menjadi .webp
-afeat convert webp
+afeat cvt webp
 
 # Mengonversi semua audio/video di folder ini menjadi .mp3
-afeat convert mp3
+afeat cvt mp3
 ```
 
 #### D. Opsi & Parameter Tambahan:
 - `-q`, `--quality <angka>`: Mengatur kualitas gambar (1–100) atau bitrate audio (128, 192, 256, 320).
   ```bash
-  afeat convert png webp -q 90
-  afeat convert wav mp3 -q 320
+  afeat cvt png webp -q 90
+  afeat cvt wav mp3 -q 320
   ```
 - `-o`, `--output <folder>`: Menyimpan file hasil ke subfolder tertentu.
   ```bash
-  afeat convert png webp -o converted_images
+  afeat cvt png webp -o converted_images
   ```
 - `-r`, `--recursive`: Memproses file di subfolder secara rekursif.
   ```bash
-  afeat convert heic jpg -r
+  afeat cvt heic jpg -r
   ```
 - `-d`, `--delete-source`: Menghapus file sumber asli setelah konversi berhasil (misal: convert mp4 ke mp3 lalu hapus mp4 aslinya).
   ```bash
-  afeat convert mp4 mp3 -d
-  afeat convert video.mp4 mp3 -d
-  afeat convert heic jpg -d
+  afeat cvt mp4 mp3 -d
+  afeat cvt video.mp4 mp3 -d
+  afeat cvt heic jpg -d
   ```
 
 ---
 
-### 2. Download Media Sosial ke Folder Aktif (`afeat vid`)
+### 2. Download / Rip Media Sosial ke Folder Aktif (`afeat rip`)
 
 Mengunduh video/audio media sosial langsung ke folder terminal saat ini:
 
 ```bash
 # Download video kualitas terbaik ke direktori aktif
-afeat vid "https://www.youtube.com/watch?v=VIDEO_ID"
+afeat rip "https://www.youtube.com/watch?v=VIDEO_ID"
 
 # Download audio saja (MP3)
-afeat vid "https://www.youtube.com/watch?v=VIDEO_ID" --audio
+afeat rip "https://www.youtube.com/watch?v=VIDEO_ID" --audio
 
-# Tentukan resolusi (misal 1080p atau 720p)
-afeat vid "https://www.youtube.com/watch?v=VIDEO_ID" -q 1080
+# Tentukan format dan resolusi (misal MP4 1080p atau 720p)
+afeat rip "https://www.youtube.com/watch?v=VIDEO_ID" -q 1080
 ```
 
 ---
@@ -120,8 +120,8 @@ afeat list
 
 # Melihat bantuan perintah
 afeat --help
-afeat convert --help
-afeat vid --help
+afeat cvt --help
+afeat rip --help
 ```
 
 ---

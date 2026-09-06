@@ -34,9 +34,9 @@ def run_convert(args: argparse.Namespace) -> int:
 
     if not target_spec:
         print("[!] Target format is required.")
-        print("    Usage: afeat convert <target_format>              (converts all matching files)")
-        print("       or: afeat convert <source_ext> <target_format> (converts matching extension)")
-        print("       or: afeat convert <file_name> <target_format>  (converts specific file)")
+        print("    Usage: afeat cvt <target_format>              (converts all matching files)")
+        print("       or: afeat cvt <source_ext> <target_format> (converts matching extension)")
+        print("       or: afeat cvt <file_name> <target_format>  (converts specific file)")
         return 1
 
     target_ext = target_spec.lower().lstrip(".")
@@ -200,8 +200,8 @@ def main():
     )
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
-    # Subcommand: convert
-    p_convert = subparsers.add_parser("convert", help="Convert files in Current Working Directory")
+    # Subcommand: cvt (alias: convert)
+    p_convert = subparsers.add_parser("cvt", aliases=["convert"], help="Convert files in Current Working Directory")
     p_convert.add_argument("args", nargs="*", help="[source_ext/file] <target_format>")
     p_convert.add_argument("-i", "--input", help="Specific input file or source extension")
     p_convert.add_argument("-t", "--to", help="Target output format")
@@ -210,8 +210,8 @@ def main():
     p_convert.add_argument("-r", "--recursive", action="store_true", help="Process subdirectories recursively")
     p_convert.add_argument("-d", "--delete-source", action="store_true", help="Delete source file after successful conversion")
 
-    # Subcommand: vid (download social media)
-    p_vid = subparsers.add_parser("vid", help="Download video/audio from social media URL directly to CWD")
+    # Subcommand: rip (alias: vid - download social media)
+    p_vid = subparsers.add_parser("rip", aliases=["vid"], help="Download/rip video or audio from social media URL directly to CWD")
     p_vid.add_argument("url", help="Media URL (YouTube, TikTok, Instagram, Twitter, etc.)")
     p_vid.add_argument("-a", "--audio", action="store_true", help="Extract audio only (MP3)")
     p_vid.add_argument("-f", "--format", help="Target format (mp4, mkv, mp3, m4a)")
@@ -226,9 +226,9 @@ def main():
 
     args = parser.parse_args()
 
-    if args.command == "convert":
+    if args.command in ("cvt", "convert"):
         sys.exit(run_convert(args))
-    elif args.command == "vid":
+    elif args.command in ("rip", "vid"):
         sys.exit(run_vid(args))
     elif args.command == "info":
         sys.exit(run_info(args))
