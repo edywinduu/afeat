@@ -14,6 +14,7 @@ dependencies = [
     "pillow-heif",
     "pypdf",
     "markdown",
+    "firecrawl-anydoc",
 ]
 
 [project.scripts]

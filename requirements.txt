@@ -3,3 +3,4 @@ pillow
 pillow-heif
 pypdf
 markdown
+firecrawl-anydoc

@@ -133,7 +133,7 @@ afeat rip --help
 | **Gambar** | `jpg`, `jpeg`, `png`, `webp`, `heic`, `heif`, `bmp`, `tiff`, `tif`, `gif`, `ico` | `webp`, `jpg`, `jpeg`, `png`, `bmp`, `tiff`, `ico`, `pdf` | Pillow & pillow-heif |
 | **Audio** | `mp3`, `wav`, `m4a`, `aac`, `flac`, `opus`, `ogg`, `wma` | `mp3`, `m4a`, `wav`, `flac`, `opus`, `ogg`, `aac` | FFmpeg |
 | **Video** | `mp4`, `mkv`, `mov`, `avi`, `webm`, `flv`, `wmv`, `m4v`, `ts` | `mp4`, `mkv`, `webm`, `mov`, `avi`, `gif` *(animasi)*, `mp3` *(ekstrak audio)*, `wav`, `m4a`, `flac`, `ogg` | FFmpeg |
-| **Dokumen** | `md`, `txt`, `pdf` | `html`, `txt`, `pdf` | markdown & pypdf |
+| **Dokumen** | `docx`, `doc`, `pptx`, `ppt`, `xlsx`, `xls`, `odt`, `ods`, `odp`, `rtf`, `epub`, `csv`, `tsv`, `pdf`, `md`, `txt` | `md` *(GitHub-Flavored Markdown)*, `html`, `txt` | Firecrawl AnyDoc + PyPDF |
 
 ---
 
