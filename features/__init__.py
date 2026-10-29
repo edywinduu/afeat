@@ -9,11 +9,14 @@ from . import img
 from . import audio
 from . import video
 from . import doc
+from . import transcriber
 from .vid_downloader import SocialMediaDownloader
+from .transcriber import AudioVideoTranscriber
 
 __all__ = [
     "default_registry",
     "ConverterRegistry",
     "BaseConverter",
     "SocialMediaDownloader",
+    "AudioVideoTranscriber",
 ]

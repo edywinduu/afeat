@@ -13,5 +13,6 @@ features/base.py
 features/doc.py
 features/img.py
 features/registry.py
+features/transcriber.py
 features/vid_downloader.py
 features/video.py

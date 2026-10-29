@@ -15,6 +15,7 @@ dependencies = [
     "pypdf",
     "markdown",
     "firecrawl-anydoc",
+    "faster-whisper",
 ]
 
 [project.scripts]

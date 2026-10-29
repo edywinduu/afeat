@@ -10,7 +10,8 @@ if hasattr(sys.stdout, "reconfigure"):
 if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
-from features import default_registry, SocialMediaDownloader
+from features import default_registry, SocialMediaDownloader, AudioVideoTranscriber
+from features.transcriber import SUPPORTED_MEDIA_EXTS
 
 
 def run_convert(args: argparse.Namespace) -> int:
@@ -179,6 +180,115 @@ def run_info(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_trans(args: argparse.Namespace) -> int:
+    """
+    Transcribe audio or video into a text file (.txt) in Current Working Directory (CWD).
+    Allows interactive naming of output file with default fallback on Enter.
+    """
+    cwd = Path.cwd()
+
+    # 1. Resolve source media file
+    source_path: Optional[Path] = None
+
+    if args.file:
+        cand = cwd / args.file
+        if cand.is_file():
+            source_path = cand
+        elif Path(args.file).is_file():
+            source_path = Path(args.file)
+        else:
+            print(f"[!] File tidak ditemukan: {args.file}")
+            return 1
+    else:
+        # Scan media files in CWD
+        candidates = [
+            p for p in cwd.iterdir()
+            if p.is_file() and p.suffix.lower().lstrip(".") in SUPPORTED_MEDIA_EXTS
+        ]
+        if len(candidates) == 1:
+            source_path = candidates[0]
+            print(f"[*] Ditemukan file media otomatis: {source_path.name}")
+        elif len(candidates) > 1:
+            print("[*] Ditemukan beberapa file audio/video di direktori saat ini:")
+            for idx, p in enumerate(candidates, 1):
+                print(f"    [{idx}] {p.name}")
+            try:
+                choice = input(f"Pilih nomor file (1-{len(candidates)}) atau ketik nama file: ").strip()
+                if choice.isdigit() and 1 <= int(choice) <= len(candidates):
+                    source_path = candidates[int(choice) - 1]
+                elif choice:
+                    if (cwd / choice).is_file():
+                        source_path = cwd / choice
+                    elif Path(choice).is_file():
+                        source_path = Path(choice)
+            except (EOFError, KeyboardInterrupt):
+                print("\n[!] Dibatalkan.")
+                return 1
+
+        if not source_path:
+            try:
+                manual_input = input("Masukkan nama file video atau audio yang ingin ditranskrip: ").strip()
+                if manual_input:
+                    if (cwd / manual_input).is_file():
+                        source_path = cwd / manual_input
+                    elif Path(manual_input).is_file():
+                        source_path = Path(manual_input)
+            except (EOFError, KeyboardInterrupt):
+                print("\n[!] Dibatalkan.")
+                return 1
+
+    if not source_path or not source_path.is_file():
+        print("[!] Tidak ada file media yang dipilih atau file tidak valid.")
+        return 1
+
+    # 2. Determine target .txt filename (default: <stem>.txt)
+    default_output_name = f"{source_path.stem}.txt"
+
+    if args.output:
+        target_name = args.output.strip()
+        if not target_name.lower().endswith(".txt"):
+            target_name = f"{target_name}.txt"
+    else:
+        prompt = f"Masukkan nama file output txt (enter langsung untuk default '{default_output_name}'): "
+        try:
+            if sys.stdin.isatty():
+                user_choice = input(prompt).strip()
+            else:
+                line = sys.stdin.readline()
+                user_choice = line.strip() if line else ""
+        except (EOFError, KeyboardInterrupt):
+            user_choice = ""
+
+        if user_choice:
+            target_name = user_choice if user_choice.lower().endswith(".txt") else f"{user_choice}.txt"
+        else:
+            target_name = default_output_name
+
+    target_path = cwd / target_name
+
+    print("=" * 60)
+    print(f"[*] Sumber  : {source_path.name}")
+    print(f"[*] Output  : {target_path.name}")
+    print(f"[*] Lokasi  : {cwd}")
+    print(f"[*] Model   : {args.model}")
+    print("=" * 60)
+
+    transcriber = AudioVideoTranscriber(
+        model_size=args.model,
+        device=args.device,
+        compute_type=args.compute_type,
+    )
+
+    ok = transcriber.transcribe(
+        source_path=source_path,
+        target_path=target_path,
+        language=args.language,
+        include_timestamps=args.timestamps,
+    )
+
+    return 0 if ok else 1
+
+
 def run_list(args: argparse.Namespace) -> int:
     """Display all supported formats."""
     print("\n" + "=" * 60)
@@ -218,6 +328,20 @@ def main():
     p_vid.add_argument("-q", "--quality", help="Quality (resolution e.g. 1080, or audio bitrate e.g. 320)")
     p_vid.add_argument("-o", "--output", help="Output folder (default: CWD)")
 
+    # Subcommand: trans (alias: transcribe)
+    p_trans = subparsers.add_parser(
+        "trans",
+        aliases=["transcribe"],
+        help="Transcribe audio or video into txt using faster_whisper",
+    )
+    p_trans.add_argument("file", nargs="?", default=None, help="Audio or video file (default: scan current directory)")
+    p_trans.add_argument("-o", "--output", help="Output .txt filename (default: enter interactively or <name>.txt)")
+    p_trans.add_argument("-m", "--model", default="base", help="Whisper model size: tiny, base, small, medium, large-v3 (default: base)")
+    p_trans.add_argument("-l", "--lang", "--language", dest="language", default=None, help="Language code (e.g. id, en). Default: auto-detect")
+    p_trans.add_argument("--timestamps", action="store_true", help="Include timestamps in output .txt")
+    p_trans.add_argument("--device", default="auto", choices=["auto", "cpu", "cuda"], help="Inference device (default: auto)")
+    p_trans.add_argument("--compute-type", default=None, help="Compute type (e.g. int8, float16)")
+
     # Subcommand: info
     subparsers.add_parser("info", help="Show file statistics for Current Working Directory")
 
@@ -230,6 +354,8 @@ def main():
         sys.exit(run_convert(args))
     elif args.command in ("rip", "vid"):
         sys.exit(run_vid(args))
+    elif args.command in ("trans", "transcribe"):
+        sys.exit(run_trans(args))
     elif args.command == "info":
         sys.exit(run_info(args))
     elif args.command == "list":

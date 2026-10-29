@@ -12,9 +12,12 @@
    - Bisa memproses 1 file spesifik atau seluruh file berekstensi sama di folder aktif.
 2. **Social Media Downloader**:
    - Mengunduh video atau audio dari YouTube, TikTok, Instagram, Twitter/X, Facebook, Reddit, dll., langsung ke direktori aktif.
-3. **CWD File Inspector**:
+3. **AI Audio & Video Transcriber (`faster-whisper`)**:
+   - Mentranskripsi rekaman suara maupun file video langsung menjadi teks `.txt` di direktori aktif.
+   - Penamaan file fleksibel (ketik nama baru atau tekan Enter untuk nama default).
+4. **CWD File Inspector**:
    - Menampilkan ringkasan jenis file, jumlah, dan total ukuran di folder tempat terminal berada.
-4. **Arsitektur Modular (Registry Pattern)**:
+5. **Arsitektur Modular (Registry Pattern)**:
    - Setiap tipe file ditangani oleh modul terpisah di dalam folder `features/`.
    - Mudah ditambah format baru di masa depan tanpa mengubah kode yang ada.
 
@@ -109,7 +112,48 @@ afeat rip "https://www.youtube.com/watch?v=VIDEO_ID" -q 1080
 
 ---
 
-### 3. Informasi Direktori & Daftar Format
+### 3. Transkripsi Video & Audio (`afeat trans`)
+
+Mentranskripsi suara dari file audio (rekaman) maupun video langsung menjadi dokumen teks (`.txt`) yang dieksekusi di tempat (Current Working Directory) menggunakan `faster_whisper` (`WhisperModel`).
+
+#### A. Penggunaan Cepat:
+```bash
+# Transkripsi file audio
+afeat trans rekaman.mp3
+
+# Transkripsi file video
+afeat trans webinar.mp4
+
+# Otomatis deteksi / pilih file media yang ada di folder ini
+afeat trans
+```
+
+Saat dijalankan, sistem akan meminta konfirmasi nama file output `.txt`:
+- **Tekan `Enter` langsung**: Menggunakan nama default (`<nama_file_asli>.txt`).
+- **Ketik nama kustom**: Misalnya `catatan_rapat` lalu Enter -> akan disimpan sebagai `catatan_rapat.txt`.
+
+#### B. Opsi & Parameter Tambahan:
+- `-o`, `--output <nama>`: Menentukan nama file output teks secara langsung (tanpa prompt interaktif).
+  ```bash
+  afeat trans podcast.m4a -o hasil_catatan.txt
+  ```
+- `-m`, `--model <ukuran>`: Memilih ukuran model Whisper (`tiny`, `base`, `small`, `medium`, `large-v3`). Default: `base`.
+  ```bash
+  afeat trans interview.wav -m small
+  ```
+- `-l`, `--lang <kode>`: Menentukan bahasa transkripsi (misal `id`, `en`, `ja`). Default: auto-detect otomatis.
+  ```bash
+  afeat trans rapat.mp4 -l id
+  ```
+- `--timestamps`: Menyertakan penanda waktu (*timestamps*) `[00:01:23 -> 00:01:28]` pada setiap segmen kalimat di file output txt.
+  ```bash
+  afeat trans webinar.mp4 --timestamps
+  ```
+- `--device <auto|cpu|cuda>`: Memilih device komputasi (default: `auto`, otomatis fallback ke CPU int8 jika CUDA runtime tidak tersedia).
+
+---
+
+### 4. Informasi Direktori & Daftar Format
 
 ```bash
 # Melihat rekapitulasi file di direktori aktif saat ini
@@ -131,8 +175,8 @@ afeat rip --help
 | Kategori | Ekstensi Input | Format Output Target | Engine |
 |---|---|---|---|
 | **Gambar** | `jpg`, `jpeg`, `png`, `webp`, `heic`, `heif`, `bmp`, `tiff`, `tif`, `gif`, `ico` | `webp`, `jpg`, `jpeg`, `png`, `bmp`, `tiff`, `ico`, `pdf` | Pillow & pillow-heif |
-| **Audio** | `mp3`, `wav`, `m4a`, `aac`, `flac`, `opus`, `ogg`, `wma` | `mp3`, `m4a`, `wav`, `flac`, `opus`, `ogg`, `aac` | FFmpeg |
-| **Video** | `mp4`, `mkv`, `mov`, `avi`, `webm`, `flv`, `wmv`, `m4v`, `ts` | `mp4`, `mkv`, `webm`, `mov`, `avi`, `gif` *(animasi)*, `mp3` *(ekstrak audio)*, `wav`, `m4a`, `flac`, `ogg` | FFmpeg |
+| **Audio** | `mp3`, `wav`, `m4a`, `aac`, `flac`, `opus`, `ogg`, `wma` | `mp3`, `m4a`, `wav`, `flac`, `opus`, `ogg`, `aac`, `txt` *(transkripsi)* | FFmpeg & faster-whisper |
+| **Video** | `mp4`, `mkv`, `mov`, `avi`, `webm`, `flv`, `wmv`, `m4v`, `ts` | `mp4`, `mkv`, `webm`, `mov`, `avi`, `gif` *(animasi)*, `mp3` *(ekstrak audio)*, `wav`, `m4a`, `flac`, `ogg`, `txt` *(transkripsi)* | FFmpeg & faster-whisper |
 | **Dokumen** | `docx`, `doc`, `pptx`, `ppt`, `xlsx`, `xls`, `odt`, `ods`, `odp`, `rtf`, `epub`, `csv`, `tsv`, `pdf`, `md`, `txt` | `md` *(GitHub-Flavored Markdown)*, `html`, `txt` | Firecrawl AnyDoc + PyPDF |
 
 ---
@@ -149,6 +193,7 @@ d:/Project/aFeature/
 │   ├── audio.py                   # Handler audio & bitrate
 │   ├── video.py                   # Handler video, remuxing & GIF generator
 │   ├── doc.py                     # Handler dokumen (Markdown, PDF text)
+│   ├── transcriber.py             # Handler transkripsi AI via faster-whisper
 │   └── vid_downloader.py          # Handler download medsos via yt-dlp
 ├── main.py                        # Entry point CLI (argparse & CWD handler)
 ├── afeat.cmd                      # Windows wrapper untuk eksekusi global
